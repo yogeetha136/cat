@@ -1,0 +1,54 @@
+sudo apt update
+sudo apt install openjdk-11-jdk
+java -version; javac -version
+sudo apt install scala
+sudo rm /var/lib/dpkg/lock-frontend
+sudo rm /var/lib/dpkg/lock
+sudo apt install scala
+Download apacke spark from website
+cd Downloads
+ls
+tar xzf spark-3.5.3-bin-hadoop3.tgz
+sudo mv spark-3.5.3-bin-hadoop3 /usr/local/spark
+nano ~/.bashrc
+export PATH=$PATH:/usr/local/spark/bin
+source ~/.bashrc
+echo "hi hello hi" > input.txt
+spark-shell
+val inputFile=sc.textFile("input.txt")
+val counts = inputFile.flatMap(line => line.split(" ")).map(word => (word,1)).reduceByKey(_+_)
+counts.saveAsTextFile("output")
+exit spark shell by ctrl+C
+ls
+cd output
+ls 
+cat part-00000
+
+DOCKER
+DOCKER:
+sudo usermod -aG docker $USER
+sudo systemctl start docker
+sudo systemctl status docker
+mkdir test
+cd test
+touch readme.txt
+touch DockerFile
+ls
+gedit DockerFile
+FROM ubuntu
+CMD ["echo","hello i am docker"]
+sudo docker build -t mydocker .
+sudo docker images
+sudo docker run mydocker
+sudo chown -R $(whoami) ~/.docker
+docker login
+docker images
+docker ps
+docker ps -a
+docker pull ubuntu
+docker run ubuntu
+docker run -d ubuntu
+docker run -it ubuntu /bin/bash
+
+
+

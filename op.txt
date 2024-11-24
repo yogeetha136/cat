@@ -1,0 +1,132 @@
+sudo apt install gcc
+sudo apt install gcc gforton
+compile:  gcc -fopenmp -o pg1.c
+./pg1
+
+pg 1.c
+#include <omp.h>  // Include the OpenMP header 
+#include <stdio.h> // Include the standard I/O header 
+int main(int argc, char *argv[]) { 
+    // Parallel region starts here 
+    #pragma omp parallel 
+    { 
+        int num = omp_get_num_threads(); // Get the number of threads 
+        int tid = omp_get_thread_num();  // Get the thread ID 
+        printf("Hello World from thread %d of %d\n", tid, num); 
+    } 
+    return 0; 
+}
+
+pg2.c
+#include <stdio.h> 
+#include <omp.h> 
+int main(){ 
+int x; 
+x = 2; 
+#pragma omp parallel num_threads(2) shared(x) 
+{ 
+if (omp_get_thread_num() == 0) { 
+x = 5; 
+} else { 
+/* Print 1: the following read of x has a race */ 
+printf("1: Thread# %d: x = %d\n", omp_get_thread_num(),x ); 
+} 
+#pragma omp barrier 
+if (omp_get_thread_num() == 0) { 
+/* Print 2 */ 
+printf("2: Thread# %d: x = %d\n", omp_get_thread_num(),x ); 
+} else { 
+/* Print 3 */ 
+printf("3: Thread# %d: x = %d\n", omp_get_thread_num(),x ); 
+} 
+} 
+return 0; 
+}
+
+for loop
+#include <omp.h> 
+#include <stdio.h> 
+int main() { 
+    int n = 1000; 
+    int array[n]; 
+    int sum = 0; 
+    // Initialize the array with values 
+    for (int i = 0; i < n; ++i) { 
+        array[i] = i + 1; 
+    } 
+    // Parallelize the loop using OpenMP 
+    #pragma omp parallel 
+    { 
+        int local_sum = 0; 
+        #pragma omp for 
+        for (int i = 0; i < n; ++i) { 
+            local_sum += array[i]; 
+        } 
+        // Use a critical section to update the shared sum 
+        #pragma omp critical 
+        { 
+            sum += local_sum; 
+        } 
+    } 
+    printf("The sum of the array is %d\n", sum); 
+    return 0; 
+}
+
+first private
+#include <omp.h> 
+#include <stdio.h> 
+int main() { 
+    int A = 0; 
+    omp_set_num_threads(12); 
+    #pragma omp parallel for firstprivate(A) 
+    for (int i = 0; i < 10; i++) { 
+        A += i; 
+        int num = omp_get_thread_num(); 
+        printf("Thread %i got %d\n", num, A); 
+    } 
+    printf("At the end, A will be: %i\n", A); 
+    return 0; 
+} 
+
+Last Private Code: 
+ 
+#include <omp.h> 
+#include <stdio.h> 
+int main() { 
+    int A = 0; 
+    omp_set_num_threads(12); 
+    #pragma omp parallel for lastprivate(A) 
+    for (int i = 0; i < 10; i++) { 
+        A += i; 
+        int num = omp_get_thread_num(); 
+        printf("Thread %i got %d\n", num, A); 
+    } 
+    printf("At the end, A will be: %i\n", A); 
+    return 0; 
+} 
+
+ Reduction Code: 
+ 
+#include <omp.h> 
+#include <stdio.h> 
+int main() { 
+    int n = 1000; 
+    int array[n]; 
+    int max_value = 0; 
+    // Initialize the array with values 
+    for (int i = 0; i < n; ++i) { 
+        array[i] = i + 1; 
+    } 
+    // Parallelize the maximum finding using 
+OpenMP reduction 
+    #pragma omp parallel for 
+reduction(max:max_value) 
+    for (int i = 0; i < n; ++i) { 
+        if (array[i] > max_value) { 
+            max_value = array[i]; 
+        } 
+    } 
+    printf("The maximum value in the array is 
+%d\n", max_value); 
+    return 0; 
+}
