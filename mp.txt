@@ -87,3 +87,51 @@ MPI_Comm_rank(MPI_COMM_WORLD,
 printf("Hello from rank %d out of %d 
 processors\n", world_rank, world_size); 
 }
+
+
+nano pg4.c
+
+#include <mpi.h>
+#include <stdio.h>
+
+int main(int argc, char **argv) {
+    int rank, size, n;
+    double pi = 0.0, local_sum = 0.0;
+
+    // Initialize MPI environment
+MPI_Init(&argc, &argv);
+MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+MPI_Comm_size(MPI_COMM_WORLD, &size);
+
+    if (rank == 0) {
+        // Input number of terms
+printf("Enter the number of terms: ");
+scanf("%d", &n);
+    }
+
+    // Broadcast the number of terms to all processes
+MPI_Bcast(&n, 1, MPI_INT, 0, MPI_COMM_WORLD);
+
+    // Each process calculates its partial sum
+    for (int i = rank; i< n; i += size) {
+        double term = 4.0 / (2 * i + 1);
+        if (i % 2 == 0) {
+local_sum += term; // Add if i is even
+        } else {
+local_sum -= term; // Subtract if i is odd
+        }
+    }
+
+    // Reduce all local sums to get the final value of pi in rank 0
+MPI_Reduce(&local_sum, &pi, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+
+    // Output result in process 0
+    if (rank == 0) {
+printf("Approximate value of pi: %f\n", pi);
+    }
+
+    // Finalize MPI environment
+MPI_Finalize();
+    return 0;
+}
+
