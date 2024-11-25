@@ -49,6 +49,11 @@ docker pull ubuntu
 docker run ubuntu
 docker run -d ubuntu
 docker run -it ubuntu /bin/bash
+docker network ls
+docker network create my_network
+docker network inspect my_network
+docker network connect my_network my_container
+docker run --network=my_network --name=my_container ubuntu
 
 
 
